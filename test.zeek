@@ -7,17 +7,17 @@ global URL: string;
 
 event zeek_init()
 {
-	local r1 = Sumstats::Reducer($stream="404_response", $apply=set(Sumstats::SUM));
-	local r2 = Sumstats::Reducer($stream="all_response", $apply=set(Sumstats::SUM));
-	local r3 = Sumstats::Reducer($stream="unique_url", $apply=set(Sumstats::UNIQUE));
+	local r1 = Sumstats::Reducer($stream="404.response", $apply=set(Sumstats::SUM));
+	local r2 = Sumstats::Reducer($stream="allresponse", $apply=set(Sumstats::SUM));
+	local r3 = Sumstats::Reducer($stream="uniqueurl", $apply=set(Sumstats::UNIQUE));
 	Sumstats::create([$name="scanner.detect",
 					  $epoch=10mins,
 					  $reducers=set(r1, r2, r3),
 					  $epoch_result(ts: time, key: Sumstats::Key, result: Sumstats::Result) = 
 					  {
-						  local s1 = result["404_response"];
-						  local s2 = result["all_response"];
-						  local s3 = result["unique_url"];
+						  local s1 = result["404.response"];
+						  local s2 = result["allresponse"];
+						  local s3 = result["uniqueurl"];
 						  if(s1$sum > 2)
 						  {
 							  if(s1$sum / s2$sum > 0.2)
@@ -41,8 +41,8 @@ event http_reply(c: connection, version: string, code: count, reason: string)
 {
 	if(code == 404)
 	{
-		Sumstats::observe("404_response", [$host=c$id$orig_h], [$num=1]);
-		Sumstats::observe("unique_url", [$host=c$id$orig_h], [$str=URL]);
+		Sumstats::observe("404.response", [$host=c$id$orig_h], [$num=1]);
+		Sumstats::observe("uniqueurl", [$host=c$id$orig_h], [$str=URL]);
 	}
-	Sumstas::observe("all_response", [$host=c$id$orig_h], [$num=1]);
+	Sumstas::observe("allresponse", [$host=c$id$orig_h], [$num=1]);
 }
