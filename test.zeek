@@ -3,13 +3,12 @@
 # unique url of 404response/404response > 0.5
 
 @load base/frameworks/sumstats
-global URL: string;
 
 event zeek_init()
 {
-	local r1 = Sumstats::Reducer($stream="404.response", $apply=set(Sumstats::SUM));
-	local r2 = Sumstats::Reducer($stream="allresponse", $apply=set(Sumstats::SUM));
-	local r3 = Sumstats::Reducer($stream="uniqueurl", $apply=set(Sumstats::UNIQUE));
+	local r1 = SumStats::Reducer($stream="404.response", $apply=set(Sumstats::SUM));
+	local r2 = SumStats::Reducer($stream="allresponse", $apply=set(Sumstats::SUM));
+	local r3 = SumStats::Reducer($stream="uniqueurl", $apply=set(Sumstats::UNIQUE));
 	Sumstats::create([$name="scanner.detect",
 					  $epoch=10mins,
 					  $reducers=set(r1, r2, r3),
@@ -32,17 +31,13 @@ event zeek_init()
 	]);
 }
 
-event http_request(c: connection, method: string, original_URL: string, unescaped_URL: string, version: string)
-{
-	URL = unescaped_URL;
-}
 
 event http_reply(c: connection, version: string, code: count, reason: string)
 {
 	if(code == 404)
 	{
 		Sumstats::observe("404.response", [$host=c$id$orig_h], [$num=1]);
-		Sumstats::observe("uniqueurl", [$host=c$id$orig_h], [$str=URL]);
+		Sumstats::observe("uniqueurl", [$host=c$id$orig_h], [$str=c$http$uri]);
 	}
 	Sumstas::observe("allresponse", [$host=c$id$orig_h], [$num=1]);
 }
