@@ -26,7 +26,7 @@ event zeek_init()
 									  print fmt("%s is a scanner with %d scan attempts on %d urls.", key$host, s1$num, s3$unique);
 								  }
 							  }
-						  }		 
+						  }
 					  }
 	]);
 }
@@ -36,7 +36,7 @@ event http_reply(c: connection, version: string, code: count, reason: string)
 	if(code == 404)
 	{
 		SumStats::observe("404.response", [$host=c$id$orig_h], [$num=1]);
-		SumStats::observe("uniqueurl", [$host=c$id$orig_h], [$str=c$http$uri]);
+		SumStats::observe("uniqueurl", [$host=c$id$orig_h], [$str=tURL]);
 	}
-	SumStas::observe("allresponse", [$host=c$id$orig_h], [$num=1]);
+	SumStats::observe("allresponse", [$host=c$id$orig_h], [$num=1]);
 }
