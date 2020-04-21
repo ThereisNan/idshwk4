@@ -36,7 +36,7 @@ event http_reply(c: connection, version: string, code: count, reason: string)
 	if(code == 404)
 	{
 		SumStats::observe("404.response", [$host=c$id$orig_h], [$num=1]);
-		SumStats::observe("uniqueurl", [$host=c$id$orig_h], [$str=tURL]);
+		SumStats::observe("uniqueurl", [$host=c$id$orig_h], [$str=c$http$uri]);
 	}
 	SumStats::observe("allresponse", [$host=c$id$orig_h], [$num=1]);
 }
